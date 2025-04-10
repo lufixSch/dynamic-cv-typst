@@ -105,7 +105,7 @@ Start your Typst document with the `cv` template.
   columns: (1fr, 3fr),
 
   // Language
-  lang: de
+  lang: "en"
 )
 ```
 
@@ -177,7 +177,6 @@ Minimal examples for different section of a CV.
           (
             i.name,
             i.description,
-
           )
         }
       )
