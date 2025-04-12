@@ -125,6 +125,7 @@
   return [#date.start - #date.end]
 }
 
+// Create a table for personal information
 #let personal_table(cfg, info) = {
   table(
     ..if info.at("name", default: none) != none { ([#cfg.name:], info.name) },
@@ -152,6 +153,7 @@
   )
 }
 
+// Create a table for timeline information
 #let timeline_table(cfg, info) = {
   table(
     ..for i in info.rev() {
@@ -166,6 +168,7 @@
   )
 }
 
+// Create tables for categorized information
 #let category_table(cfg, info) = {
   for c in info {
     if type(c.items) == str {
@@ -188,6 +191,7 @@
   }
 }
 
+// Create a signature block
 #let signature(place, name, cfg, len: 5cm) = {
   v(1.5cm)
   grid(
