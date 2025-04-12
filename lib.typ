@@ -157,7 +157,7 @@
     ..for i in info.rev() {
       (
         get_date(i.date),
-        [#text(weight: "medium", i.title) #linebreak() #i.at(
+        [#strong(i.title) #linebreak() #i.at(
             "description",
             default: "",
           )],
@@ -171,11 +171,11 @@
     if type(c.items) == str {
       set block(spacing: 2pt)
       table(
-        text(weight: "medium", c.category), c.items
+        strong(c.category), c.items
       )
     } else {
       set block(spacing: 5pt)
-      text(weight: "medium", c.category)
+      strong(c.category)
       table(
         ..for i in c.items {
           (
