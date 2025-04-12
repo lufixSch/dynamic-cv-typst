@@ -128,7 +128,9 @@
 // Create a table for personal information
 #let personal_table(cfg, info) = {
   table(
-    ..if info.at("name", default: none) != none { ([#cfg.name:], info.name) },
+    ..if info.at("name", default: none) != none {
+      ([#cfg.name:], info.name)
+    },
     ..if info.at("address", default: none) != none {
       ([#cfg.address:], info.address)
     },
