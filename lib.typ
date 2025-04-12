@@ -76,33 +76,30 @@
     panic("Personal Information YAML is required!")
   }
 
-  information.update(i => {
-    for (name, path) in paths.pairs() {
-      i.insert(name, yaml(path))
-    }
-
-    return i
-  })
+  let info = (:)
+  for (name, path) in paths.pairs() {
+    info.insert(name, yaml(path))
+  }
+  information.update(info)
 
   // Update configuration with any provided overwrites
   config.update(c => cfg)
 
-  context {
-    // Set basic document properties
-    set document(
-      author: information.get().personal.name,
-      title: config.get().title,
-    )
-    set page(
-      margin: (left: 10mm, right: 10mm, top: 10mm, bottom: 10mm),
-      numbering: "1",
-      number-align: right,
-    )
+  // Set basic document properties
+  set document(
+    author: info.personal.name,
+    title: cfg.title,
+  )
 
-    // Set text and paragraph properties
-    set text(lang: lang)
-    set par(first-line-indent: 0pt, spacing: .7em, justify: true)
-  }
+  set page(
+    margin: (x: 1cm, y: 1.5cm),
+    numbering: "1",
+    number-align: right,
+  )
+
+  // Set text and paragraph properties
+  set text(lang: lang)
+  set par(first-line-indent: 0pt, spacing: .7em, justify: true)
 
   // Set base configuration for tables
   set table(
@@ -130,23 +127,27 @@
 
 #let personal_table(cfg, info) = {
   table(
-    ..if info.at("name", default: none) != none { ([#cfg.name], info.name) },
+    ..if info.at("name", default: none) != none { ([#cfg.name:], info.name) },
     ..if info.at("address", default: none) != none {
-      ([#cfg.address], info.address)
+      ([#cfg.address:], info.address)
     },
-    ..if info.at("phone", default: none) != none { ([#cfg.phone], info.phone) },
-    ..if info.at("email", default: none) != none { ([#cfg.email], info.email) },
+    ..if info.at("phone", default: none) != none {
+      ([#cfg.phone:], info.phone)
+    },
+    ..if info.at("email", default: none) != none {
+      ([#cfg.email:], info.email)
+    },
     ..if info.at("birthdate", default: none) != none {
-      ([#cfg.birthdate], info.birthdate)
+      ([#cfg.birthdate:], info.birthdate)
     },
     ..if info.at("birthplace", default: none) != none {
-      ([#cfg.birthplace], info.birthplace)
+      ([#cfg.birthplace:], info.birthplace)
     },
     ..if info.at("citizenship", default: none) != none {
-      ([#cfg.citizenship], info.citizenship)
+      ([#cfg.citizenship:], info.citizenship)
     },
     ..if info.at("gender", default: none) != none {
-      ([#cfg.gender], info.gender)
+      ([#cfg.gender:], info.gender)
     }
   )
 }
@@ -156,7 +157,10 @@
     ..for i in info.rev() {
       (
         get_date(i.date),
-        [#strong(i.title) #linebreak() #i.at("description", default: "")],
+        [#text(weight: "medium", i.title) #linebreak() #i.at(
+            "description",
+            default: "",
+          )],
       )
     }
   )
@@ -165,12 +169,13 @@
 #let category_table(cfg, info) = {
   for c in info {
     if type(c.items) == str {
+      set block(spacing: 2pt)
       table(
-        strong(c.category), c.items
+        text(weight: "medium", c.category), c.items
       )
     } else {
       set block(spacing: 5pt)
-      strong(c.category)
+      text(weight: "medium", c.category)
       table(
         ..for i in c.items {
           (
@@ -184,7 +189,7 @@
 }
 
 #let signature(place, name, cfg, len: 5cm) = {
-  v(12pt)
+  v(1.5cm)
   grid(
     columns: (1fr, 1fr),
     [#place, #datetime.today().display(cfg.date_format)],
