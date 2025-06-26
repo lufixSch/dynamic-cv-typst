@@ -1,30 +1,24 @@
-#let information = state(
-  "information",
-  (
-    personal: (),
-  ),
-)
+#let information = state("information", (
+  personal: (),
+))
 
 // Define default configuration for the CV
-#let config = state(
-  "config",
-  (
-    title: "",
-    keywords: (
-      the: "",
-      since: "",
-      name: "",
-      address: "",
-      phone: "",
-      email: "",
-      birthdate: "",
-      birthplace: "",
-      citizenship: "",
-      gender: "",
-    ),
-    date_format: "",
+#let config = state("config", (
+  title: "",
+  keywords: (
+    the: "",
+    since: "",
+    name: "",
+    address: "",
+    phone: "",
+    email: "",
+    birthdate: "",
+    birthplace: "",
+    citizenship: "",
+    gender: "",
   ),
-)
+  date_format: "",
+))
 
 // Define translations for different languages
 #let config_translations = (
@@ -102,11 +96,7 @@
   set par(first-line-indent: 0pt, spacing: .7em, justify: true)
 
   // Set base configuration for tables
-  set table(
-    columns: columns,
-    stroke: none,
-    inset: (x: 0pt, y: 5pt),
-  )
+  set table(columns: columns, stroke: none, inset: (x: 0pt, y: 5pt))
 
   // Render the body of the CV
   body
@@ -125,34 +115,51 @@
   return [#date.start - #date.end]
 }
 
+// Place profile picture pass to `personal_table` with custom parameters
+#let profile(offset: (x: 0pt, y: 0pt), dheight: 0pt, tab_sz, path) = {
+    return place(top + right, dx: tab_sz.width - offset.x, dy: - tab_sz.height - 0.5em + offset.y, image(
+      path,
+      height: tab_sz.height + dheight,
+    ))
+}
+
 // Create a table for personal information
-#let personal_table(cfg, info) = {
-  table(
-    ..if info.at("name", default: none) != none {
-      ([#cfg.name:], info.name)
-    },
-    ..if info.at("address", default: none) != none {
-      ([#cfg.address:], info.address)
-    },
-    ..if info.at("phone", default: none) != none {
-      ([#cfg.phone:], info.phone)
-    },
-    ..if info.at("email", default: none) != none {
-      ([#cfg.email:], info.email)
-    },
-    ..if info.at("birthdate", default: none) != none {
-      ([#cfg.birthdate:], info.birthdate)
-    },
-    ..if info.at("birthplace", default: none) != none {
-      ([#cfg.birthplace:], info.birthplace)
-    },
-    ..if info.at("citizenship", default: none) != none {
-      ([#cfg.citizenship:], info.citizenship)
-    },
-    ..if info.at("gender", default: none) != none {
-      ([#cfg.gender:], info.gender)
-    }
-  )
+#let personal_table(cfg, info, profile_func) = {
+  block({
+    let info_tab = table(
+      ..if info.at("name", default: none) != none {
+        ([#cfg.name:], info.name)
+      },
+      ..if info.at("address", default: none) != none {
+        ([#cfg.address:], info.address)
+      },
+      ..if info.at("phone", default: none) != none {
+        ([#cfg.phone:], info.phone)
+      },
+      ..if info.at("email", default: none) != none {
+        ([#cfg.email:], info.email)
+      },
+      ..if info.at("birthdate", default: none) != none {
+        ([#cfg.birthdate:], info.birthdate)
+      },
+      ..if info.at("birthplace", default: none) != none {
+        ([#cfg.birthplace:], info.birthplace)
+      },
+      ..if info.at("citizenship", default: none) != none {
+        ([#cfg.citizenship:], info.citizenship)
+      },
+      ..if info.at("gender", default: none) != none {
+        ([#cfg.gender:], info.gender)
+      }
+    )
+    info_tab
+
+  layout(size => {
+    let tab_sz = measure(width: size.width, info_tab)
+
+    profile_func(tab_sz, info.picture)
+  })
+  })
 }
 
 // Create a table for timeline information
@@ -176,7 +183,8 @@
     if type(c.items) == str {
       set block(spacing: 2pt)
       table(
-        strong(c.category), c.items
+        strong(c.category),
+        c.items,
       )
     } else {
       set block(spacing: 5pt)
