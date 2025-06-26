@@ -88,7 +88,7 @@ Naturally all YAML schemas can be extended with custom keys and values if needed
 
 Start your Typst document with the `cv` template. Provide the paths to your YAML files in the `paths` argument. `personal` is required further paths with arbitrary names can be added depending on your need.
 
-```typ
+```
 #import "lib.typ": *
 
 #show: cv.with(
@@ -113,14 +113,14 @@ Start your Typst document with the `cv` template. Provide the paths to your YAML
 
 Afterward you have access to the `config` and `information` state variables to build your document.
 
-```typ
+```
 #context config.get()
 #context information.get()
 ```
 
 The information from your YAML files can then be displayed in a structured way using the `personal_table`, `timeline_table` or `category_table` function.
 
-```typ
+```
 #context {
   let cfg = config.get().keywords
   let info = information.get().personal
