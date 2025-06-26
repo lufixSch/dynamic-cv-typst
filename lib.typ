@@ -209,7 +209,7 @@
 }
 
 // Create a signature block
-#let signature(place, name, cfg, len: 5cm) = {
+#let signature(cfg, place, name, len: 5cm) = {
   v(1.5cm)
   grid(
     columns: (1fr, 1fr),
