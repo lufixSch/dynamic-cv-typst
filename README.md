@@ -36,6 +36,9 @@ phone: "+1 555 1234 567"
 
 # Email address (optional)
 email: "johndoe@example.com"
+
+# Profile picture (optional)
+picture: "path/to/profile/picture.png"
 ```
 
 Other information like education, work or skills can be written using one of two schemas.
@@ -122,9 +125,12 @@ The information from your YAML files can then be displayed in a structured way u
   let cfg = config.get().keywords
   let info = information.get().personal
 
-  personal_table(cfg, info)
+  personal_table(cfg, info, profile)
 }
 ```
+
+> NOTE: If the personal config contains a profile picture path, the `profile` function is used to place the picture.
+> Use `profile.with(...)` with custom parameters to change the position of the picture.
 
 This repo provides further utility functions to make parsing of the YAML files and building a CV easier.
 

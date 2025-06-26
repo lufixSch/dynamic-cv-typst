@@ -117,10 +117,15 @@
 
 // Place profile picture pass to `personal_table` with custom parameters
 #let profile(offset: (x: 0pt, y: 0pt), dheight: 0pt, tab_sz, path) = {
-    return place(top + right, dx: tab_sz.width - offset.x, dy: - tab_sz.height - 0.5em + offset.y, image(
+  return place(
+    top + right,
+    dx: tab_sz.width - offset.x,
+    dy: -tab_sz.height - 0.5em + offset.y,
+    image(
       path,
       height: tab_sz.height + dheight,
-    ))
+    ),
+  )
 }
 
 // Create a table for personal information
@@ -154,11 +159,13 @@
     )
     info_tab
 
-  layout(size => {
-    let tab_sz = measure(width: size.width, info_tab)
+    if (info.at("picture", default: none) != none and profile_func != none) {
+      layout(size => {
+        let tab_sz = measure(width: size.width, info_tab)
 
-    profile_func(tab_sz, info.picture)
-  })
+        profile_func(tab_sz, info.picture)
+      })
+    }
   })
 }
 
