@@ -3,7 +3,9 @@
 ))
 
 // Define default configuration for the CV
-#let config = state("config", (
+#let default_config = (
+  lang: "",
+  importance: 1,
   title: "",
   keywords: (
     the: "",
@@ -12,17 +14,20 @@
     address: "",
     phone: "",
     email: "",
+    homepage: "",
     birthdate: "",
     birthplace: "",
     citizenship: "",
     gender: "",
   ),
   date_format: "",
-))
+)
+#let config = state("config", default_config)
 
 // Define translations for different languages
 #let config_translations = (
   de: (
+    lang: "de",
     title: "Lebenslauf",
     keywords: (
       since: "Seit",
@@ -30,6 +35,7 @@
       address: "Anschrift",
       phone: "Telefon",
       email: "E-Mail",
+      homepage: "Homepage",
       birthdate: "Geburtsdatum",
       birthplace: "Geburtsort",
       citizenship: "Staatsangehörigkeit",
@@ -38,6 +44,7 @@
     date_format: "[day].[month].[year repr:last_two]",
   ),
   en: (
+    lang: "en",
     title: "Resume",
     keywords: (
       the: "the",
@@ -46,6 +53,7 @@
       address: "Address",
       phone: "Phone",
       email: "E-Mail",
+      homepage: "Homepage",
       birthdate: "Date of birth",
       birthplace: "Place of Birth",
       citizenship: "Citizenship",
@@ -55,6 +63,22 @@
   ),
 )
 
+#let _deep_merge(dict1, dict2) = {
+    let final = dict1
+    for (k, v) in dict2 {
+        if (k in dict1) {
+            if type(v) == dictionary {
+                final.insert(k, _deep_merge(dict1.at(k), v))
+            } else {
+                final.insert(k, dict2.at(k))
+            }
+        } else {
+            final.insert(k, v)
+        }
+    }
+    final
+}
+
 // Define the main function to generate CV
 #let cv(
   body,
@@ -63,7 +87,6 @@
   ),
   cfg: config_translations.en,
   columns: (1fr, 3fr),
-  lang: "en",
 ) = {
   // Update information state with data from YAML files
   if paths.at("personal", default: none) == none {
@@ -77,6 +100,7 @@
   information.update(info)
 
   // Update configuration with any provided overwrites
+  cfg = _deep_merge(default_config, cfg)
   config.update(c => cfg)
 
   // Set basic document properties
@@ -92,7 +116,7 @@
   )
 
   // Set text and paragraph properties
-  set text(lang: lang)
+  set text(lang: cfg.lang)
   set par(first-line-indent: 0pt, spacing: .7em, justify: true)
 
   // Set base configuration for tables
@@ -101,6 +125,7 @@
   // Render the body of the CV
   body
 }
+
 
 // Function to format date range or single date
 #let get_date(date) = {
@@ -130,6 +155,8 @@
 
 // Create a table for personal information
 #let personal_table(cfg, info, profile_func) = {
+  cfg = cfg.keywords
+
   block({
     let info_tab = table(
       ..if info.at("name", default: none) != none {
@@ -142,7 +169,10 @@
         ([#cfg.phone:], info.phone)
       },
       ..if info.at("email", default: none) != none {
-        ([#cfg.email:], info.email)
+        ([#cfg.email:], link("mailto://" + info.email)[#info.email])
+      },
+      ..if info.at("homepage", default: none) != none {
+        ([#cfg.homepage:], link("https://" + info.homepage)[#info.homepage])
       },
       ..if info.at("birthdate", default: none) != none {
         ([#cfg.birthdate:], info.birthdate)
@@ -171,6 +201,8 @@
 
 // Create a table for timeline information
 #let timeline_table(cfg, info) = {
+  info = info.filter(it => it.at("importance", default: 3) >= cfg.importance)
+
   table(
     ..for i in info.rev() {
       (
@@ -186,6 +218,8 @@
 
 // Create tables for categorized information
 #let category_table(cfg, info) = {
+  info = info.filter(it => it.at("importance", default: 3) >= cfg.importance)
+
   for c in info {
     if type(c.items) == str {
       set block(spacing: 2pt)
@@ -196,8 +230,10 @@
     } else {
       set block(spacing: 5pt)
       strong(c.category)
+
+      let items = c.items.filter(it => it.at("importance", default: 3) >= cfg.importance)
       table(
-        ..for i in c.items {
+        ..for i in items {
           (
             i.name,
             i.description,
