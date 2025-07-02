@@ -245,16 +245,32 @@
 }
 
 // Create a signature block
-#let signature(cfg, place, name, len: 5cm) = {
+#let signature(cfg, place_str, name, len: 5cm, path: none) = {
   v(1.5cm)
   grid(
     columns: (1fr, 1fr),
-    [#place, #datetime.today().display(cfg.date_format)],
+    align(bottom, [
+      #place_str, #datetime.today().display(cfg.date_format)\
+      #box(height: 1em)
+    ]),
     [
+      #if (path != none) {
+        let im = image(path, width: len)
+        place(
+          top + left,
+          image(
+            path,
+            width: len
+          ),
+        )
+        v(measure(im).height - 1em)
+      }
+
       #box(height: 1em, line(start: (0pt, 1em), end: (len, 1em)))\
       #box(
         inset: (x: 5pt, y: 0pt),
         name,
       )],
   )
+
 }
